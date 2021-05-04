@@ -30,24 +30,27 @@ public class Player : MonoBehaviour
     {
         if (waypoints.Count <= 0)
             return;
+
         var currentWaypoint = waypoints.Peek();
         Vector3 previousPosition = transform.position;
         transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, distance);
-        if (transform.position != currentWaypoint)   // haven't reached closest waypoint
+        if (transform.position != currentWaypoint)   // haven't reached current waypoint
+            return;
+
+        OnWaypointReached(waypoints, out bool lastWaypointReached);
+        if (lastWaypointReached)
             return;
 
         float overshoot = distance - (transform.position - previousPosition).magnitude;
-        bool wasLastWaypointReached = OnWaypointReached(waypoints);
-        if (!wasLastWaypointReached && overshoot > 0f)
+        if (overshoot > 0f)
             MoveAlongWaypoints(waypoints, overshoot);
     }
 
-    private bool OnWaypointReached(Queue<Vector3> waypoints)
+    private void OnWaypointReached(Queue<Vector3> waypoints, out bool lastWaypointReached)
     {
         waypoints.Dequeue();
         OnWaypointReachedEvent?.Invoke();
-        bool wasLastPointReached = waypoints.Count <= 0;
-        if (wasLastPointReached) OnLastWaypointReachedEvent?.Invoke();
-        return wasLastPointReached;
+        lastWaypointReached = waypoints.Count <= 0;
+        if (lastWaypointReached) OnLastWaypointReachedEvent?.Invoke();        
     }
 }
