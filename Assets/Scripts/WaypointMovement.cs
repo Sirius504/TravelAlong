@@ -28,7 +28,6 @@ public class WaypointMovement : MonoBehaviour
     {
         currentSpeed = CalculateSpeed(currentSpeed, GetRemainingDistance());
         MoveAlongWaypoints(waypoints, currentSpeed * Time.deltaTime);
-        Debug.Log($"Remaining distance: {GetRemainingDistance()}, currentSpeed: {currentSpeed}");
     }
 
     private float CalculateSpeed(float currentSpeed, float remainingDistance)
