@@ -5,7 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] private WaypointMovement movement;
-    [SerializeField] private float zMovementLevel = 1.0f;
+    [SerializeField] private float zMovementLevel = 0.0f;
 
     private void Awake()
     {
@@ -20,6 +20,13 @@ public class Player : MonoBehaviour
             Vector3 touchWorldPosition = Camera.main.ScreenToWorldPoint(touch.position);
             touchWorldPosition.z = zMovementLevel;
             movement.AddWaypoint(touchWorldPosition);
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            clickWorldPosition.z = zMovementLevel;
+            movement.AddWaypoint(clickWorldPosition);
         }
     }
 }
