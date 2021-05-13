@@ -20,6 +20,8 @@ public class PathVisualisation : MonoBehaviour
         lineRenderer.SetPosition(0, transformOnPath.position);
         int i = 1;
         foreach (var waypoint in movement.Waypoints)
+        {
             lineRenderer.SetPosition(i++, waypoint);
+        }
     }
 }

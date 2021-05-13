@@ -432,9 +432,10 @@ MonoBehaviour:
   OnWaypointReachedEvent:
     m_PersistentCalls:
       m_Calls: []
+  cornerCuttingIterations: 3
   speed: 4
   accelerationRate: 4
-  decelerationRate: 4
+  decelerationRate: 2
 --- !u!212 &562312275
 SpriteRenderer:
   m_ObjectHideFlags: 0
