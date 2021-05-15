@@ -1,27 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
 public class PathVisualisation : MonoBehaviour
 {
-    [SerializeField] private WaypointMovement movement;
+    [SerializeField] private WaypointMovement waypointMovement;
     [SerializeField] private LineRenderer lineRenderer;
-    [SerializeField] private Transform transformOnPath;
+
+    private SmoothPath path;
 
     private void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
+        if (lineRenderer != null)
+            lineRenderer = GetComponent<LineRenderer>();
+        path = waypointMovement.Path;
     }
 
     private void Update()
     {        
-        lineRenderer.positionCount = movement.Waypoints.Count + 1;
-        lineRenderer.SetPosition(0, transformOnPath.position);
-        int i = 1;
-        foreach (var waypoint in movement.Waypoints)
+        lineRenderer.positionCount = path.Waypoints.Count;
+        for (int i = 0; i < path.Waypoints.Count; i++)
         {
-            lineRenderer.SetPosition(i++, waypoint);
+            lineRenderer.SetPosition(i, path[i]);
         }
     }
 }

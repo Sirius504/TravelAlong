@@ -4,12 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(WaypointMovement))]
 public class Player : MonoBehaviour
 {
-    [SerializeField] private WaypointMovement movement;
     [SerializeField] private float zMovementLevel = 0.0f;
+    private SmoothPath path;
 
     private void Awake()
     {
-        movement = GetComponent<WaypointMovement>();
+        path = GetComponent<WaypointMovement>().Path;
     }
 
     // Update is called once per frame
@@ -19,14 +19,14 @@ public class Player : MonoBehaviour
         {
             Vector3 touchWorldPosition = Camera.main.ScreenToWorldPoint(touch.position);
             touchWorldPosition.z = zMovementLevel;
-            movement.AddWaypoint(touchWorldPosition);
+            path.AddWaypoint(touchWorldPosition);
         }
 
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             clickWorldPosition.z = zMovementLevel;
-            movement.AddWaypoint(clickWorldPosition);
+            path.AddWaypoint(clickWorldPosition);
         }
     }
 }
