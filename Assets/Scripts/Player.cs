@@ -15,18 +15,21 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+#if UNITY_ANDROID
         foreach (var touch in Input.touches.Where(t => t.phase == TouchPhase.Began))
         {
             Vector3 touchWorldPosition = Camera.main.ScreenToWorldPoint(touch.position);
             touchWorldPosition.z = zMovementLevel;
             path.AddWaypoint(touchWorldPosition);
         }
-
+#endif
+#if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             clickWorldPosition.z = zMovementLevel;
             path.AddWaypoint(clickWorldPosition);
         }
+#endif
     }
 }
