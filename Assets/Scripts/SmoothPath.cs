@@ -1,58 +1,63 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
 [Serializable]
-public class SmoothPath
+public class SmoothPath : IEnumerable<Vector3>
 {
     public UnityEvent<Vector3> OnWaypointAdded;
     public UnityEvent OnWaypointRemoved;
 
-    public int CornerCuttingIterations => cornerCuttingIterations;    
+    public int CornerCuttingIterations => cornerCuttingIterations;
     public int Count => waypoints.Count;
+
 
     [SerializeField] private int cornerCuttingIterations = 3;
     private const float cuttingCoeffClose = .25f;
     private const float cuttingCoeffFar = .75f;
 
     [SerializeField]
-    private List<Vector3> waypoints;
+    private LinkedList<Vector3> waypoints;
+
 
     public SmoothPath()
     {
-        waypoints = new List<Vector3>();
-    }
-
-    public Vector3 this[int index]
-    {
-        get
-        {
-            return waypoints[index];
-        }
+        waypoints = new LinkedList<Vector3>();
     }
 
     public void AddWaypoint(Vector3 waypoint)
     {
-        waypoints.Add(waypoint);
+        waypoints.AddLast(waypoint);
         if (waypoints.Count > 2)
         {
             var newTail = CutCornersChaikin(waypoints.Skip(Mathf.Max(0, waypoints.Count - 3)).ToList(), CornerCuttingIterations);
-            ReplaceTail(waypoints, waypoints.Count - 3, newTail);
+            ReplaceTail(waypoints.Last.Previous.Previous, new LinkedList<Vector3>(newTail));
         }
         OnWaypointAdded?.Invoke(waypoint);
     }
 
-    public void RemoveWaypoint(int index)
+    public void RemoveFirst()
     {
-        waypoints.RemoveAt(index);
+        waypoints.RemoveFirst();
         OnWaypointRemoved?.Invoke();
     }
 
-    public void MoveWaypoint(int index, Vector3 newPosition)
+    public void MoveFirst(Vector3 newPosition)
     {
-        waypoints[index] = newPosition;
+        waypoints.First.Value = newPosition;
+    }
+
+    public Vector3 CountFromHead(int index)
+    {
+        if (index > waypoints.Count - 1)
+            return CountFromHead(waypoints.Count - 1);
+        var pointer = waypoints.First;
+        for (int i = 0; i < index; i++)
+            pointer = pointer.Next;
+        return pointer.Value;
     }
 
     public float GetLength()
@@ -61,8 +66,12 @@ public class SmoothPath
         if (waypoints.Count < 2)
             return remainingDistance;
 
-        for (int i = 0; i < waypoints.Count - 1; i++)
-            remainingDistance += (waypoints[i + 1] - waypoints[i]).magnitude;
+        var pointer = waypoints.First;
+        while (pointer.Next != null)
+        {
+            remainingDistance += (pointer.Next.Value - pointer.Value).magnitude;
+            pointer = pointer.Next;
+        }
 
         return remainingDistance;
     }
@@ -95,13 +104,30 @@ public class SmoothPath
         return iterations == 0 ? newPoints : CutCornersChaikin(newPoints, iterations);
     }
 
-    private void ReplaceTail<T>(List<T> list, int tailStartIndex, List<T> newTail)
+    private void ReplaceTail<T>(LinkedListNode<T> tailStart, LinkedList<T> newTail)
     {
-        int newListLenght = list.Count - (list.Count - tailStartIndex) + newTail.Count;
-        for (int i = tailStartIndex; i < newListLenght; i++)
-            if (i < list.Count)
-                list[i] = newTail[i - tailStartIndex];
-            else
-                list.Add(newTail[i - tailStartIndex]);
+        var list = tailStart.List;
+                
+        while (list.Last != tailStart)
+        {
+            list.RemoveLast();
+        }
+        list.RemoveLast();
+
+        while (newTail.Count > 0)
+        {
+            list.AddLast(newTail.First.Value);
+            newTail.RemoveFirst();
+        }
+    }
+
+    public IEnumerator<Vector3> GetEnumerator()
+    {
+        return waypoints.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return waypoints.GetEnumerator();
     }
 }

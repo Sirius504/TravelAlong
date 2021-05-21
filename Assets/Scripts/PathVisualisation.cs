@@ -18,9 +18,10 @@ public class PathVisualisation : MonoBehaviour
     private void Update()
     {        
         lineRenderer.positionCount = path.Count;
-        for (int i = 0; i < path.Count; i++)
+        int i = 0;
+        foreach(var waypoint in path)
         {
-            lineRenderer.SetPosition(i, path[i]);
+            lineRenderer.SetPosition(i++, waypoint);
         }
     }
 }

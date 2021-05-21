@@ -38,19 +38,18 @@ public class WaypointMovement : MonoBehaviour
     {
         if (path.Count <= 1)
             return;
-
-        // path[0] is always at player position and player's next
-        // waypoint is at path[1]
+                
         while (distance > 0f && path.Count > 1)
         {
-            float nextWaypointDistance = (path[1] - transform.position).magnitude;
-            transform.position = Vector3.MoveTowards(transform.position, path[1], distance);
+            var targetWaypoint = path.CountFromHead(1);
+            float nextWaypointDistance = (targetWaypoint - transform.position).magnitude;
+            transform.position = Vector3.MoveTowards(transform.position, targetWaypoint, distance);
             distance -= nextWaypointDistance;
 
-            if (transform.position == path[1])
-                path.RemoveWaypoint(0);
+            if (transform.position == targetWaypoint)            
+                path.RemoveFirst();            
 
-            path.MoveWaypoint(0, transform.position);
+            path.MoveFirst(transform.position);
         }
     }
 
