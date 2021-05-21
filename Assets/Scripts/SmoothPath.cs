@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 [Serializable]
 public class SmoothPath
 {
-    public int CornerCuttingIterations => cornerCuttingIterations;
-    public IReadOnlyList<Vector3> Waypoints => waypoints;
+    public UnityEvent<Vector3> OnWaypointAdded;
+    public UnityEvent OnWaypointRemoved;
+
+    public int CornerCuttingIterations => cornerCuttingIterations;    
+    public int Count => waypoints.Count;
 
     [SerializeField] private int cornerCuttingIterations = 3;
     private const float cuttingCoeffClose = .25f;
@@ -37,11 +41,13 @@ public class SmoothPath
             var newTail = CutCornersChaikin(waypoints.Skip(Mathf.Max(0, waypoints.Count - 3)).ToList(), CornerCuttingIterations);
             ReplaceTail(waypoints, waypoints.Count - 3, newTail);
         }
+        OnWaypointAdded?.Invoke(waypoint);
     }
 
     public void RemoveWaypoint(int index)
     {
         waypoints.RemoveAt(index);
+        OnWaypointRemoved?.Invoke();
     }
 
     public void MoveWaypoint(int index, Vector3 newPosition)
@@ -68,10 +74,9 @@ public class SmoothPath
 
         List<Vector3> newPoints = new List<Vector3>();
 
-        int i = 0;
         Vector3 point = Vector3.zero;
-        newPoints.Add(segment[i]);
-        for (i = 0; i < segment.Count - 1; i++)
+        newPoints.Add(segment[0]);
+        for (int i = 0; i < segment.Count - 1; i++)
         {
             if (i != 0)
             {
@@ -100,4 +105,3 @@ public class SmoothPath
                 list.Add(newTail[i - tailStartIndex]);
     }
 }
-
